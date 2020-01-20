@@ -14,9 +14,8 @@ class Hangman
   def play
     until @remaining_mistakes.zero?
       display_current_progress
-      letter = get_letter_or_save_and_exit
-      check_word_for_letter(letter)
-      unless @guess.include? '_'
+      check_word_for_letter(get_letter_or_save_and_exit)
+      unless remaining_letters
         puts "Congrats, you guessed the correct word, #{@word.join('')}!"
         return
       end
@@ -47,16 +46,6 @@ class Hangman
     file.close
   end
 
-  def get_save_file_name
-    puts 'What is the name of your save file?'
-    file_name = gets.chomp
-    until File.exist?(file_name)
-      puts "Sorry, I can't find that file. What's the file name?"
-      file_name = gets.chomp
-    end
-    file_name
-  end
-
   def check_word_for_letter(guessed_letter)
     word_contains_letter = false
     @word.each_with_index do |letter, index|
@@ -75,7 +64,9 @@ class Hangman
   def display_current_progress
     puts "You can make #{@remaining_mistakes} more mistakes until losing."
     puts "Word so far: #{@guess.join(' ')}"
-    puts "Incorrect guesses: #{@incorrect_guesses.join(', ')}"
+    unless @incorrect_guesses.length.zero?
+      puts "Incorrect guesses: #{@incorrect_guesses.join(', ')}"
+    end
   end
 
   def get_letter_or_save_and_exit
@@ -101,6 +92,20 @@ class Hangman
       word.length > 4 && word.length < 13
     end
     eligible_words[rand(eligible_words.length)]
+  end
+
+  def remaining_letters
+    @guess.include? '_'
+  end
+
+  def get_save_file_name
+    puts 'What is the name of your save file?'
+    file_name = gets.chomp
+    until File.exist?(file_name)
+      puts "Sorry, I can't find that file. What's the file name?"
+      file_name = gets.chomp
+    end
+    file_name
   end
 
   def save_and_exit
